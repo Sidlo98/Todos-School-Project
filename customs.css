@@ -1,0 +1,7 @@
+.done-todo p{
+  text-decoration-line: line-through;
+}
+.done-todo-card {
+  border: 5px solid forestgreen;
+  opacity: 0.7;
+}

@@ -1,15 +1,16 @@
 const form = document.querySelector('#form');
 const output = document.querySelector('#output');
 
-// fetching the todos from the API
+let todoId = 10;
+let todos = []
+
+// fetching 10 todos from the API
 fetch('https://jsonplaceholder.typicode.com/todos?_limit=10')
     .then((response) => response.json())
     .then((data) => listTodos(data))
 // ------------------------------------------------------------------------
 
-let todos = []
-
-// listing the todos on in the DOM
+// listing the todos in the DOM
 const listTodos = (data) => {
 
   todos = data;
@@ -23,7 +24,7 @@ const listTodos = (data) => {
         <p>${todo.title}</p>
       <div class="d-flex justify-content-between">
         <button id="doneTodo" class="btn btn-success">Done</button>
-        <button id="removeTodo" class="btn btn-danger">X</button>
+        <button id="removeTodo" class="btn btn-danger d-none">X</button>
       </div>
     </div>
     `
@@ -35,32 +36,25 @@ const listTodos = (data) => {
       output.children[todoIndex].childNodes[3].childNodes[1].innerHTML = 'Undo'
       output.children[todoIndex].childNodes[3].childNodes[1].classList.remove('btn-success')
       output.children[todoIndex].childNodes[3].childNodes[1].classList.add('btn-warning')
+      output.children[todoIndex].childNodes[3].childNodes[3].classList.remove('d-none')
     }
     todoIndex += 1;
   });
-  console.log(todos);
 }
 // -------------------------------------------------------------------------
 
-  // remove button
+// remove button
   output.addEventListener('click', (e) => {
-
     if (e.target.classList.contains('btn-danger')) {
       let id = e.target.parentNode.parentNode.id;
-      console.log(id);
-
       let newTodos = todos.filter((todo) => {return todo.id != id})
-      
-      console.log(todos[id]);
-
       listTodos(newTodos);
     }
-
   })
+//---------------------------------------------------------------------------
 
-  // done button and undo button
+// done button and undo button
   output.addEventListener('click', (e) => {
-
     if (e.target.classList.contains('btn-success')){
       let id = e.target.parentNode.parentNode.id;
       let todoIndex = todos.findIndex(todo => todo.id == id)
@@ -74,5 +68,65 @@ const listTodos = (data) => {
       listTodos(todos);
     }
   })
+// -----------------------------------------------------------------------------------
 
+//  add new todo
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    if(validateTodo(form.newTodo.value) && validateTodoUniqe(form.newTodo.value)) {
+      form.newTodo.classList.remove('is-invalid')
+      todoId += 1;
+      fetch('https://jsonplaceholder.typicode.com/todos', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: 1,
+        id: 201,
+        title: form.newTodo.value,
+        completed: false
+      }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+      })
+      .then((response) => response.json())
+      .then((data) => (todos.splice(0, 0, changeId(data))))
+      .then((data) => (data.id = todoId))
+      .then(() => listTodos(todos))
+    } 
+    else if (validateTodo(form.newTodo.value)) {
+      form.newTodo.classList.add('is-invalid');
+      form.newTodo.nextSibling.nextSibling.innerHTML = 'You have already added this todo.';
+    }
+    else {
+      form.newTodo.classList.add('is-invalid')
+      form.newTodo.nextSibling.nextSibling.innerHTML = 'Your todo needs to be atleast 3 characters long.';
+    }
+  })
+  // ---------------------------------------------------------------------------------------------------------
 
+  //  functions
+  const changeId = (value) => {
+    value.id = todoId
+    return value
+  }
+
+  const validateTodo = (value) => {
+    if(value.length >= 3) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+  
+  const validateTodoUniqe = (value) => {
+    let todoUniqe = true;
+    todos.forEach(todo => {
+      if(todo.title === value) {
+        todoUniqe = false;
+      }
+    })
+    return todoUniqe;
+  }
+// ---------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap');
+body {
+  font-family: 'RocknRoll One', sans-serif;
+}
 .done-todo p{
   text-decoration-line: line-through;
 }
+.card {
+  border: 5px solid #666;
+}
 .done-todo-card {
-  border: 5px solid forestgreen;
+  border: 5px solid #198754;
   opacity: 0.7;
 }

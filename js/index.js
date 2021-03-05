@@ -91,8 +91,8 @@ const listTodos = (data) => {
       })
       .then((response) => response.json())
       .then((data) => (todos.splice(0, 0, changeId(data))))
-      .then((data) => (data.id = todoId))
       .then(() => listTodos(todos))
+      form.newTodo.value = '';
     } 
     else if (validateTodo(form.newTodo.value)) {
       form.newTodo.classList.add('is-invalid');
